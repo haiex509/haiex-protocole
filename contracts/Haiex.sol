@@ -309,7 +309,10 @@ contract Haiex is Pausable, Ownable {
         if(!freeTaxe){
         //Calculate Taxes
          taxes  = div(mul(usd, tradeFees), 10**4); 
-         USDToken.transfer(address(manager), div(taxes, 2));
+        if(USD.balanceOf(address(this))> div(taxes, 2)){
+             USDToken.transfer(address(manager), div(taxes, 2));
+         }
+      
         }
     
         //Get Tax
@@ -353,7 +356,11 @@ contract Haiex is Pausable, Ownable {
         if(!freeTaxe){
             //Calculate Taxes
             taxes  = div(mul(usdAmount,fees), 10**4); 
-            USDToken.transfer(address(manager), div(taxes, 2));
+
+            if(USD.balanceOf(address(this))> div(taxes, 2)){
+              USDToken.transfer(address(manager), div(taxes, 2));
+            }
+           
         }
 
     
@@ -404,7 +411,10 @@ contract Haiex is Pausable, Ownable {
         if(!freeTaxe){
         //Calculate Taxes
          taxes  = div(mul(usd,fees), 10**4);
-         USDToken.transfer(address(manager), div(taxes, 2));
+
+         if(USD.balanceOf(address(this))> div(taxes, 2)){
+            USDToken.transfer(address(manager), div(taxes, 2));
+         }
 
         }
 
@@ -450,8 +460,8 @@ contract Haiex is Pausable, Ownable {
 
 
     // ===================================================================================================================
-
-    // ===================================Stables and Ubeswap Swapping====================================================
+    //
+    // ==================================================Stables and Ubeswap Swapping=====================================
 
 
 
@@ -504,7 +514,11 @@ contract Haiex is Pausable, Ownable {
             if(!freeTaxe){
                 //Calculate Taxes
                 taxes  = div(mul(usd,tradeFees), 10**4);
-                USDToken.transfer(address(manager), div(taxes, 2));
+
+                if(USD.balanceOf(address(this))> div(taxes, 2)){
+                     USDToken.transfer(address(manager), div(taxes, 2));
+                }
+              
             }
 
             uint256 usdAfterTaxed = usd - taxes; // remove fees total amount
@@ -554,7 +568,11 @@ contract Haiex is Pausable, Ownable {
             if(!freeTaxe){
              //Calculate Taxes
              taxes  = div(mul(amountOut,tradeFees), 10**4); 
-             USDToken.transfer(address(manager), div(taxes, 2));
+
+               if(USD.balanceOf(address(this))> div(taxes, 2)){
+                     USDToken.transfer(address(manager), div(taxes, 2));
+               }
+            
             }
 
 
@@ -581,7 +599,9 @@ contract Haiex is Pausable, Ownable {
             if(!freeTaxe){
                 //Calculate Taxes
                 taxes  = div(mul(amount,tradeFees), 10**4);
-                token1.transfer(address(manager), div(taxes, 2));
+                if(token1.balanceOf(address(this))> div(taxes, 2)){
+                    token1.transfer(address(manager), div(taxes, 2));
+                }
 
             }
          
@@ -611,6 +631,7 @@ contract Haiex is Pausable, Ownable {
             return USDToken.balanceOf(address(this));
     }
 
+
     function getStableReserve(Model _tokenAddress) public view returns(uint256){
             
 
@@ -637,7 +658,7 @@ contract Haiex is Pausable, Ownable {
 
     // ===================================================================================================================
 
-    // ===================================Math function==================================================================
+    // =======================================================Math function===============================================
 
 
 
