@@ -26,14 +26,12 @@ contract Router {
 }
 
 
-
 contract Haiex is Pausable, Ownable {
 
     Router  private  router;
 
     address private  WETH;
     ERC20  public USDToken ;
-
 
     struct Stable {
         Model   tokenAddress;
@@ -48,8 +46,6 @@ contract Haiex is Pausable, Ownable {
     }
 
     Stable[] public stables;
-
-
 
     uint256 public  fees; 
     uint256 public  tradeFees; 
@@ -262,8 +258,6 @@ contract Haiex is Pausable, Ownable {
 
     // =================================================Stables Converter===================================
 
-
-
     function stableTrade(address _stable1, address _stable2, uint256 amount) public  whenNotPaused returns (bool) {
 
     
@@ -309,7 +303,7 @@ contract Haiex is Pausable, Ownable {
         if(!freeTaxe){
         //Calculate Taxes
          taxes  = div(mul(usd, tradeFees), 10**4); 
-        if(USD.balanceOf(address(this))> div(taxes, 2)){
+        if(USDToken.balanceOf(address(this))> div(taxes, 2)){
              USDToken.transfer(address(manager), div(taxes, 2));
          }
       
@@ -357,7 +351,7 @@ contract Haiex is Pausable, Ownable {
             //Calculate Taxes
             taxes  = div(mul(usdAmount,fees), 10**4); 
 
-            if(USD.balanceOf(address(this))> div(taxes, 2)){
+            if(USDToken.balanceOf(address(this))> div(taxes, 2)){
               USDToken.transfer(address(manager), div(taxes, 2));
             }
            
@@ -412,7 +406,7 @@ contract Haiex is Pausable, Ownable {
         //Calculate Taxes
          taxes  = div(mul(usd,fees), 10**4);
 
-         if(USD.balanceOf(address(this))> div(taxes, 2)){
+         if(USDToken.balanceOf(address(this))> div(taxes, 2)){
             USDToken.transfer(address(manager), div(taxes, 2));
          }
 
@@ -462,7 +456,6 @@ contract Haiex is Pausable, Ownable {
     // ===================================================================================================================
     //
     // ==================================================Stables and Ubeswap Swapping=====================================
-
 
 
     function swapStable(address tok_in, address tok_out, address[] memory path,  uint256 amount) public whenNotPaused{
@@ -515,7 +508,7 @@ contract Haiex is Pausable, Ownable {
                 //Calculate Taxes
                 taxes  = div(mul(usd,tradeFees), 10**4);
 
-                if(USD.balanceOf(address(this))> div(taxes, 2)){
+                if(USDToken.balanceOf(address(this))> div(taxes, 2)){
                      USDToken.transfer(address(manager), div(taxes, 2));
                 }
               
@@ -569,7 +562,7 @@ contract Haiex is Pausable, Ownable {
              //Calculate Taxes
              taxes  = div(mul(amountOut,tradeFees), 10**4); 
 
-               if(USD.balanceOf(address(this))> div(taxes, 2)){
+               if(USDToken.balanceOf(address(this))> div(taxes, 2)){
                      USDToken.transfer(address(manager), div(taxes, 2));
                }
             
@@ -631,7 +624,6 @@ contract Haiex is Pausable, Ownable {
             return USDToken.balanceOf(address(this));
     }
 
-
     function getStableReserve(Model _tokenAddress) public view returns(uint256){
             
 
@@ -646,6 +638,7 @@ contract Haiex is Pausable, Ownable {
 
             return 0; 
     }
+
 
     function emergencyTransferReseve(address recipient) public onlyOwner  returns(bool){
         uint256 balance = USDToken.balanceOf(address(this));
