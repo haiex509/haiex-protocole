@@ -102,6 +102,7 @@ contract Haiex is Pausable, Ownable {
     }
 
     function changeUSD(address usdToken) public onlyManagerOrOwner returns (bool) {
+        require(usdToken != address(0), "Stable1 doest not exist");
         USDToken = ERC20(usdToken);
         return true;
     }
@@ -384,8 +385,7 @@ contract Haiex is Pausable, Ownable {
 
         //Initialize ERC20 token
         Model stableCoin = Model(tokenAddress);
-        //Get sender blalance
-        // uint senderBalance = stableCoin.balanceOf(msg.sender);
+      
         //Get stable information
         Stable memory stable = getStableByAddress(stableCoin);
        
@@ -414,13 +414,9 @@ contract Haiex is Pausable, Ownable {
 
         uint256 usdAfterTaxed = usd - taxes;
 
-
-
         //Burn those tokens         
         stableCoin.burnFrom(msg.sender, tokenAmount);
      
-  
-      
 
         //Send USD to the sender
         USDToken.transfer(msg.sender, usdAfterTaxed);
@@ -638,7 +634,6 @@ contract Haiex is Pausable, Ownable {
 
             return 0; 
     }
-
 
     function emergencyTransferReseve(address recipient) public onlyOwner  returns(bool){
         uint256 balance = USDToken.balanceOf(address(this));

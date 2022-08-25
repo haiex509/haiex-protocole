@@ -2,18 +2,20 @@ require('@nomiclabs/hardhat-ethers');
 require('hardhat-deploy');
 require('dotenv').config();
 require('@nomiclabs/hardhat-web3');
+// npx hardhat run --network localhost scripts/2_init_assets.js
+// npx hardhat node
 
 module.exports = {
-  defaultNetwork: 'alfajores',
+  // defaultNetwork: 'alfajores',
   namedAccounts: {
     deployer: 0,
   },
   networks: {
-    hardhat: {
-      forking: {
-        url: process.env.ALFAJORESURL,
-      },
-    },
+    // hardhat: {
+    //   forking: {
+    //     url: process.env.ALFAJORESURL,
+    //   },
+    // },
     alfajores: {
       url: process.env.ALFAJORESURL,
       accounts: [process.env.PRIVATEKEY],
