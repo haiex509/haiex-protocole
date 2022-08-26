@@ -49,6 +49,8 @@ contract Haiex is Pausable, Ownable {
 
     uint256 public  fees; 
     uint256 public  tradeFees; 
+    mapping(address => uint) feesPartition;
+
 
     address public  admin;
     address public  manager;
@@ -108,7 +110,18 @@ contract Haiex is Pausable, Ownable {
     }
 
     function changeFee(uint256 fee_) public onlyManagerOrOwner returns (bool) {
+        require(fee_ >= 0 , "Cannot be less than zero");
         fees = fee_;
+        return true;
+    }
+
+    function addBeneficiary(address beneficiary, uint amount) public onlyManagerOrOwner returns (bool) {
+        require(usdToken != address(0), "Beneficiary cannot be null");
+        require(amount >= 0 , "Cannot be less than zero");
+        require(amount < 500 , "Cannot be more than 5%");
+
+        feesPartition[beneficiary] = amount;
+        
         return true;
     }
 
