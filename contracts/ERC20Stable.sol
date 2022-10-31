@@ -6,12 +6,13 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract HTG is ERC20, ERC20Burnable, Pausable, Ownable {
+contract ERC20Stable is ERC20, ERC20Burnable, Pausable, Ownable {
+
     address public  manager;
 
+    constructor() ERC20("ERC20Stable", "ERC20Stable") {}
 
-    constructor() ERC20("HTG", "HTG") {}
-
+  
     function decimals() public view virtual override returns (uint8) {
         return 6;
     }
@@ -44,7 +45,7 @@ contract HTG is ERC20, ERC20Burnable, Pausable, Ownable {
         _unpause();
     }
 
-   
+    
 
     function _beforeTokenTransfer(address from, address to, uint256 amount)
         internal

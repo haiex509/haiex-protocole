@@ -6,8 +6,12 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Model is ERC20, ERC20Burnable, Pausable, Ownable {
-    constructor() ERC20("Model", "Model") {}
+contract CAD is ERC20, ERC20Burnable, Pausable, Ownable {
+    constructor() ERC20("CAD", "CAD") {}
+
+    function decimals() public view virtual override returns (uint8) {
+        return 6;
+    }
 
     function pause() public onlyOwner {
         _pause();

@@ -94,40 +94,22 @@ async function main() {
     );
     console.log('//////////////////////////////////////////////////////////////////');
   };
-  await getBalance();
-
-  // console.log('Buying $100 of tgoud');
-  // const amountUsd = ethers.BigNumber.from(10).mul(ethers.BigNumber.from(10).pow(18));
-  // const buyTgoud = await haiex.buyStable(tgoud.address, amountUsd);
-  // await buyTgoud.wait();
-  // console.log(buyTgoud.hash);
   // await getBalance();
+  // const router = await haiex.changeRouter('0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3');
+  // await router.wait();
+  // console.log(router.hash);
 
-  // console.log('estimate');
-  // const estimateUsd = ethers.BigNumber.from(10).mul(ethers.BigNumber.from(10).pow(18));
-  // const estimate = await haiex.swapEstimation([usd.address, btc.address], estimateUsd);
-  // console.log(estimate.toString());
+  // const esimate = await haiex.swapEstimation([usd.address, eth.address], `${1 * 10 ** 18}`);
 
-  // console.log('swap  tgoud token');
-  // const amount4 = ethers.BigNumber.from(balanceTgoud);
-  // const swap = await haiex.swapStable(tgoud.address, btc.address, [usd.address, btc.address], amount4);
-  // await swap.wait();
-  // console.log(swap.hash);
-  // await getBalance();
+  // const estimation = (esimate[1] / 10 ** 18).toFixed(8);
+  // console.log(`1$ -> ETH :`, estimation);
 
-  // console.log('swap   token tgoud');
-  // const amount2 = ethers.BigNumber.from(balanceBTC);
-  // const swap2 = await haiex.swapStable(btc.address, tgoud.address, [btc.address, usd.address], amount2);
-  // await swap2.wait();
-  // console.log(swap2.hash);
-  // await getBalance();
+  const buyTgoud = await haiex.swapStableEstimation(tgoud.address, [usd.address, btc.address], `${117 * 10 ** 18}`);
+  console.log(`HTG  -> USD ->  ETH:`, buyTgoud / 10 ** 18);
 
-  console.log('Selling htg');
-  const amount3 = ethers.BigNumber.from(balanceTgoud);
-  const sell = await haiex.sellStable(tgoud.address, amount3);
-  await sell.wait();
-  console.log(sell.hash);
-  await getBalance();
+  const buyTgoud2 = await haiex.swapStableEstimation(tgoud.address, [btc.address, usd.address], `${buyTgoud}`);
+  const go = buyTgoud2 / 10 ** 18;
+  console.log(`ETH -> USD -> HTG  :`, go);
   console.log('Congratilations. Good Jobs .......');
 }
 
