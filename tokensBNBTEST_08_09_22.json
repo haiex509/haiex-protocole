@@ -1,0 +1,8 @@
+[
+  { "name": "HTG", "type": "token", "address": "0x3E5DCB5DFB315a47256E0253aE5BE63D617b1B10" },
+  { "name": "DOP", "type": "token", "address": "0x075BAdC1237Ba3419af78FBAca9ceb4E0969320D" },
+  { "name": "USD", "type": "token", "address": "0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7" },
+  { "name": "BTC", "type": "token", "address": "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd" },
+  { "name": "ETH", "type": "token", "address": "0x8BaBbB98678facC7342735486C851ABD7A0d17Ca" },
+  { "name": "Haiex", "type": "dapp", "address": "0x1e21bAf4b15B265F7E0Dc19810410Aec3e207d7e" }
+]

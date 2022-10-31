@@ -1,0 +1,8 @@
+[
+  { "name": "HTG", "type": "token", "address": "0xF665bE1AF66e999859185478eA6A178A63C914dF" },
+  { "name": "DOP", "type": "token", "address": "0x0A87Cc31Fa374Bd184C8523e4D644e003876b858" },
+  { "name": "CFA", "type": "token", "address": "0x64a5a46F47EA7f7604cb75d187ECeb48C8ab4187" },
+  { "name": "CAD", "type": "token", "address": "0xA9b0cA61C3783072FC6392522F5b37C392197e8b" },
+  { "name": "USD", "type": "token", "address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" },
+  { "name": "Haiex", "type": "dapp", "address": "0x9265b938cC2623b865C5b14704260eCc034Ac328" }
+]

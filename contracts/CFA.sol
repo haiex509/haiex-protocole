@@ -6,10 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract USD is ERC20, ERC20Burnable, Pausable, Ownable {
-    constructor() ERC20("USD", "USD") {
-          mint(msg.sender,  100000000 *10** decimals()); // 100 Million
-    }
+contract CFA is ERC20, ERC20Burnable, Pausable, Ownable {
+    constructor() ERC20("CFA", "CFA") {}
 
     function decimals() public view virtual override returns (uint8) {
         return 6;

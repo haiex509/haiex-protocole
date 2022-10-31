@@ -16,13 +16,23 @@ async function main() {
     {
       name: 'HTG',
       type: 'token',
-      price: 100000000,
+      price: 117570857,
     },
     {
       name: 'DOP',
       type: 'token',
-      price: 55000000,
+      price: 53318548,
     },
+    // {
+    //   name: 'CFA',
+    //   type: 'token',
+    //   price: 658181286,
+    // },
+    // {
+    //   name: 'CAD',
+    //   type: 'token',
+    //   price: 1303443,
+    // },
   ];
 
   const hx = await getContractInfo('Haiex');
@@ -42,10 +52,10 @@ async function main() {
 
     let token = await hre.ethers.getContractAt(element.name, tk.address);
 
-    console.log('removing ' + element.name);
-    const remove = await haiex.removeStableByAddress(token.address);
-    await remove.wait();
-    console.log(remove.hash);
+    // console.log('removing ' + element.name);
+    // const remove = await haiex.removeStableByAddress(token.address);
+    // await remove.wait();
+    // console.log(remove.hash);
 
     console.log('adding ' + element.name);
     const add = await haiex.addStable(token.address, ethers.BigNumber.from(element.price), 0, true);
@@ -53,7 +63,7 @@ async function main() {
     console.log(add.hash);
 
     console.log('transfering Ownership' + element.name);
-    const transferOwner = await token.transferOwnership(haiex.address);
+    const transferOwner = await token.changeManager(haiex.address);
     await transferOwner.wait();
     console.log(transferOwner.hash);
   }

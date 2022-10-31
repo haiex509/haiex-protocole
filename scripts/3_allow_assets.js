@@ -13,6 +13,11 @@ async function getContractInfo(name) {
 
 async function main() {
   let list = [
+    // {
+    //   name: 'USD',
+    //   type: 'token',
+    //   amount: 1000000,
+    // },
     {
       name: 'HTG',
       type: 'token',
@@ -23,31 +28,37 @@ async function main() {
       type: 'token',
       amount: 1000000,
     },
-    {
-      name: 'USD',
-      type: 'token',
-      amount: 1000000,
-    },
-    {
-      name: 'BTC',
-      type: 'token',
-      amount: 1000000,
-    },
-    {
-      name: 'ETH',
-      type: 'token',
-      amount: 1000000,
-    },
-    {
-      name: 'CELO',
-      type: 'token',
-      amount: 1000000,
-    },
-    {
-      name: 'HaiexCoin',
-      type: 'token',
-      amount: 1000000,
-    },
+
+    // {
+    //   name: 'CFA',
+    //   type: 'token',
+    //   amount: 1000000,
+    // },
+    // {
+    //   name: 'CAD',
+    //   type: 'token',
+    //   amount: 1000000,
+    // },
+    // {
+    //   name: 'BTC',
+    //   type: 'token',
+    //   amount: 1000000,
+    // },
+    // {
+    //   name: 'ETH',
+    //   type: 'token',
+    //   amount: 1000000,
+    // },
+    // {
+    //   name: 'CELO',
+    //   type: 'token',
+    //   amount: 1000000,
+    // },
+    // {
+    //   name: 'HaiexCoin',
+    //   type: 'token',
+    //   amount: 1000000,
+    // },
   ];
 
   const hx = await getContractInfo('Haiex');

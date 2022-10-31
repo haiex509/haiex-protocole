@@ -23,34 +23,42 @@ async function init(contract, type) {
 async function main() {
   let tokens = [];
   let list = [
-    {
-      name: 'HTG',
-      type: 'token',
-    },
-    {
-      name: 'DOP',
-      type: 'token',
-    },
-    {
-      name: 'USD',
-      type: 'token',
-    },
-    {
-      name: 'BTC',
-      type: 'token',
-    },
-    {
-      name: 'ETH',
-      type: 'token',
-    },
-    {
-      name: 'CELO',
-      type: 'token',
-    },
-    {
-      name: 'HaiexCoin',
-      type: 'token',
-    },
+    // {
+    //   name: 'HTG',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'DOP',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'CFA',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'CAD',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'USD',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'BTC',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'ETH',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'CELO',
+    //   type: 'token',
+    // },
+    // {
+    //   name: 'HaiexCoin',
+    //   type: 'token',
+    // },
     {
       name: 'Haiex',
       type: 'dapp',

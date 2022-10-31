@@ -5,8 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "./Model.sol";
+import "./ERC20Stable.sol";
 
 contract Router {
 
@@ -25,20 +24,59 @@ contract Router {
   function WETH() external pure returns (address){}
 }
 
+interface ILendingPool {
+  function deposit(
+    address asset,
+    uint256 amount,
+    address onBehalfOf,
+    uint16 referralCode
+  ) external;
+
+  function withdraw(
+    address asset,
+    uint256 amount,
+    address to
+  ) external returns (uint256);
+
+  function borrow(
+    address asset,
+    uint256 amount,
+    uint256 interestRateMode,
+    uint16 referralCode,
+    address onBehalfOf
+  ) external;
+
+  function repay(
+    address asset,
+    uint256 amount,
+    uint256 rateMode,
+    address onBehalfOf
+  ) external returns (uint256);
+}
 
 contract Haiex is Pausable, Ownable {
 
     Router  private  router;
+    ILendingPool  private  lendingPool;
+
 
     address private  WETH;
     ERC20  public USDToken ;
+    ERC20  public AUSDToken ;
+
 
     struct Stable {
-        Model   tokenAddress;
+        ERC20Stable   tokenAddress;
         uint     price;
         uint256  tokenReserve;
         bool     tradable;
     }
+
+    struct FeesOwners {
+        address   owner;
+        uint      percent;
+    }
+    
 
     enum Operation {
         ADD,
@@ -46,10 +84,12 @@ contract Haiex is Pausable, Ownable {
     }
 
     Stable[] public stables;
+    FeesOwners[] public feesOwners;
+
 
     uint256 public  fees; 
     uint256 public  tradeFees; 
-    mapping(address => uint) feesPartition;
+    mapping(address => uint) public feesPartition;
 
 
     address public  admin;
@@ -57,18 +97,22 @@ contract Haiex is Pausable, Ownable {
     
     uint priceFloatDigit = 1000000;
 
-    mapping(address => bool) taxesFreeHolder;
+    mapping(address => bool) public taxesFreeHolder;
+
+    mapping(address => bool) public senderInProcess;
+
  
     constructor()   { 
      
         admin = owner();
         manager = owner();
-        fees =  50;        //=> 50/100    = 0.5%
-        tradeFees = 50;    //=> 50/100    = 0.5%
+        fees =  100;        //=> 100/100    = 1%
+        tradeFees = 100;    //=> 100/100    = 1%
         taxesFreeHolder[owner()] = true;
 
         router = Router(0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121);
-        WETH = 0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9;
+        lendingPool = ILendingPool(0x9198F13B08E299d85E096929fA9781A1E3d5d827);
+
     }  
 
 
@@ -97,6 +141,11 @@ contract Haiex is Pausable, Ownable {
         return true;
     }
 
+     function changeLendingPool(address lendingPool_) public onlyOwner returns (bool) {
+        lendingPool = ILendingPool(lendingPool_);
+        return true;
+    }
+
 
     function changeWETH(address wethAddr) public onlyOwner returns (bool) {
         WETH = wethAddr;
@@ -109,19 +158,15 @@ contract Haiex is Pausable, Ownable {
         return true;
     }
 
-    function changeFee(uint256 fee_) public onlyManagerOrOwner returns (bool) {
-        require(fee_ >= 0 , "Cannot be less than zero");
-        fees = fee_;
+    function changeAUSD(address ausdToken) public onlyManagerOrOwner returns (bool) {
+        require(ausdToken != address(0), "Stable1 doest not exist");
+        AUSDToken = ERC20(ausdToken);
         return true;
     }
 
-    function addBeneficiary(address beneficiary, uint amount) public onlyManagerOrOwner returns (bool) {
-        require(usdToken != address(0), "Beneficiary cannot be null");
-        require(amount >= 0 , "Cannot be less than zero");
-        require(amount < 500 , "Cannot be more than 5%");
-
-        feesPartition[beneficiary] = amount;
-        
+    function changeFee(uint256 fee_) public onlyManagerOrOwner returns (bool) {
+        require(fee_ >= 0 , "Cannot be less than zero");
+        fees = fee_;
         return true;
     }
 
@@ -140,10 +185,48 @@ contract Haiex is Pausable, Ownable {
     }
 
 
-    // =====================================================================================================
+    function addFeeOwner(address beneficiary, uint amount) public onlyOwner returns (bool) {
+        require(beneficiary != address(0), "Beneficiary cannot be null");
+        require(amount >= 0 , "Cannot be less than zero");
 
-    // =================================================Stables Coin Management====================================================
+        uint totalFee = 0;
+        for (uint256 index = 0; index < feesOwners.length; index++) {
+            totalFee =add(totalFee, feesOwners[index].percent);
+        }
 
+        require(add(totalFee, amount)<=100 , "Cannot be more than 100%");
+
+        FeesOwners memory fOwner = FeesOwners({owner:beneficiary, percent: amount});
+        feesOwners.push(fOwner);
+
+        return true;
+    }
+
+    function removeFeeOwner(address addr) onlyOwner public returns (uint) {
+        uint feesOwnersLength = feesOwners.length;
+
+        FeesOwners memory fOwner;
+
+        for(uint i;  i < feesOwnersLength ; i++ )
+        {
+            if(feesOwners[i].owner == addr){
+
+                fOwner = feesOwners[feesOwnersLength-1];
+                feesOwners[feesOwnersLength-1] = feesOwners[i];
+                feesOwners[i] = fOwner;
+                feesOwners.pop();
+
+                return feesOwners.length;
+            }
+        }
+
+        return feesOwners.length;
+
+    }
+
+    function feeOwnerLength() public view returns(uint) {
+      return  feesOwners.length;
+    }
 
     function addTaxesFreeHolder(address holder) public onlyOwner {
         taxesFreeHolder[holder] = true;
@@ -153,7 +236,14 @@ contract Haiex is Pausable, Ownable {
         taxesFreeHolder[holder] = false;
     }
 
-    function addStable(Model _tokenAddress, uint _priceInit, uint256  _tokenReserve, bool _tradable ) onlyOwner public returns (bool) {
+
+    // =====================================================================================================
+
+    // =================================================Stables Coin Management====================================================
+
+
+
+    function addStable(ERC20Stable _tokenAddress, uint _priceInit, uint256  _tokenReserve, bool _tradable ) onlyOwner public returns (bool) {
 
         uint stablesLength = stables.length;
 
@@ -167,7 +257,7 @@ contract Haiex is Pausable, Ownable {
         return false;
     }
 
-    function removeStableByAddress(Model addr) onlyOwner public returns (uint) {
+    function removeStableByAddress(ERC20Stable addr) onlyOwner public returns (uint) {
         uint stablesLength = stables.length;
         Stable memory stable;
 
@@ -189,7 +279,7 @@ contract Haiex is Pausable, Ownable {
 
     }
 
-    function getStableByAddress(Model addr) public view returns ( Stable memory) {
+    function getStableByAddress(ERC20Stable addr) public view returns ( Stable memory) {
 
         Stable memory stable;
 
@@ -206,7 +296,7 @@ contract Haiex is Pausable, Ownable {
 
     }
 
-    function updateStableByAddress(Model _tokenAddress, uint _price, uint256  _tokenReserve, bool _tradable) onlyOwner public returns (bool)  {
+    function updateStableByAddress(ERC20Stable _tokenAddress, uint _price, uint256  _tokenReserve, bool _tradable) onlyOwner public returns (bool)  {
 
     
         Stable memory stable;  
@@ -228,7 +318,7 @@ contract Haiex is Pausable, Ownable {
 
     }
 
-    function updateStablePrice(Model _tokenAddress, uint _price) public onlyManagerOrOwner returns (bool) {
+    function updateStablePrice(ERC20Stable _tokenAddress, uint _price) public onlyManagerOrOwner returns (bool) {
        
         require(_price > 0, "Price must be > 0");
       
@@ -246,7 +336,7 @@ contract Haiex is Pausable, Ownable {
         return false;
     }
 
-    function updateStableReserve(Model _tokenAddress, uint  _amount, Operation  operat) internal  returns (bool)  {
+    function updateStableReserve(ERC20Stable _tokenAddress, uint  _amount, Operation  operat) internal  returns (bool)  {
 
 
         for(uint i;  i < stables.length; i++ )
@@ -274,11 +364,10 @@ contract Haiex is Pausable, Ownable {
 
     function stableTrade(address _stable1, address _stable2, uint256 amount) public  whenNotPaused returns (bool) {
 
-    
-     
+
         //Initialize ERC20 token
-        Model stableCoin1 = Model(_stable1);
-        Model stableCoin2 = Model(_stable2);
+        ERC20Stable stableCoin1 = ERC20Stable(_stable1);
+        ERC20Stable stableCoin2 = ERC20Stable(_stable2);
 
         //Get stable information
         Stable memory stable1 = getStableByAddress(stableCoin1);
@@ -298,43 +387,60 @@ contract Haiex is Pausable, Ownable {
         require(stableCoin1.allowance(msg.sender, address(this)) >= amount, "Allowance not enough");
         require(stable1.price > 0, "Stable1 Price has not been define");
         require(stable2.price > 0, "Stable2 Price has not been define");
-
+        require(senderInProcess[msg.sender] != true, "This address is currently in processing");
 
         //Fist step convert Stable1 to USD
-
         uint256 usd = mul(div(amount, stable1.price), priceFloatDigit);
-         //Smart contract Burn those tokens  
-        stableCoin1.burnFrom(msg.sender, amount);
        
-        //Decrease usd reserve allocate to  Stable1
-        updateStableReserve(stable1.tokenAddress, usd, Operation.SUB);
-
 
         bool freeTaxe = taxesFreeHolder[msg.sender];
 
         uint taxes = 0;
 
-        if(!freeTaxe){
-        //Calculate Taxes
-         taxes  = div(mul(usd, tradeFees), 10**4); 
-        if(USDToken.balanceOf(address(this))> div(taxes, 2)){
-             USDToken.transfer(address(manager), div(taxes, 2));
-         }
+        if(!freeTaxe )
+        {
+            //Calculate Taxes
+            taxes = div(mul(usd, tradeFees), 10**4); 
+
+            if(USDToken.balanceOf(address(this)) > taxes)
+            {
+                //distribute taxes
+                for(uint i;  i < feesOwners.length; i++ )
+                {
+                        uint ownerPercent = feesOwners[i].percent;
+                        address ownerAddr = feesOwners[i].owner;
+
+                        uint256 feesPercent =div(mul(taxes, ownerPercent), 100); 
+                        USDToken.transfer(address(ownerAddr), feesPercent);
+                }
+                
+            }
       
         }
     
-        //Get Tax
-        uint usdr = usd - taxes;
+        //Set that user is in the process
+        senderInProcess[msg.sender] = true;
 
+        //Smart contract Burn those tokens  
+        stableCoin1.burnFrom(msg.sender, amount);
+       
+        //Decrease usd reserve allocate to  Stable1
+        updateStableReserve(stable1.tokenAddress, usd, Operation.SUB);
+
+        //Get amount after tax
+        uint usdr = usd - taxes;
     
         //Second step convert USD to Stable2
-
         uint256 tokens = div(mul(usdr, stable2.price), priceFloatDigit);
+
         //Smart contract Mint the Stable2
         stableCoin2.mint(msg.sender, tokens);
+
         //Update reserve allocate to  Stable2
         updateStableReserve(stable2.tokenAddress, usdr, Operation.ADD);
 
+        //Set that user finished the process
+        senderInProcess[msg.sender] = false;
 
         //Operation successful
         return true;
@@ -343,7 +449,7 @@ contract Haiex is Pausable, Ownable {
     function buyStable(address tokenAddress, uint256 usdAmount) public  whenNotPaused returns (bool) {
 
         //Initialize ERC20 token
-        Model stableCoin = Model(tokenAddress);
+        ERC20Stable stableCoin = ERC20Stable(tokenAddress);
 
 
         //Get stable information
@@ -354,7 +460,7 @@ contract Haiex is Pausable, Ownable {
         require(usdAmount > 0, "Usd amount can't be zero");
         require(USDToken.balanceOf(msg.sender) >= usdAmount, "Token not enough");
         require(USDToken.allowance(msg.sender, address(this)) >= usdAmount, "Allowance not enough");
-        require(stable.price > 0, "Price has not been define");
+        require(stable.price > 0, "Price has not been defined");
 
 
         bool freeTaxe = taxesFreeHolder[msg.sender];
@@ -365,8 +471,18 @@ contract Haiex is Pausable, Ownable {
             //Calculate Taxes
             taxes  = div(mul(usdAmount,fees), 10**4); 
 
-            if(USDToken.balanceOf(address(this))> div(taxes, 2)){
-              USDToken.transfer(address(manager), div(taxes, 2));
+            if(USDToken.balanceOf(address(this))> taxes)
+            {
+                    //distribute taxes
+                    for(uint i;  i < feesOwners.length; i++ )
+                    {
+                            uint ownerPercent = feesOwners[i].percent;
+                            address ownerAddr = feesOwners[i].owner;
+
+                            uint256 feesPercent =div(mul(taxes, ownerPercent), 100); 
+                            USDToken.transfer(address(ownerAddr), feesPercent);
+                    }
+                    
             }
            
         }
@@ -397,7 +513,7 @@ contract Haiex is Pausable, Ownable {
     function sellStable(address tokenAddress, uint256 tokenAmount) public whenNotPaused returns (bool) {
 
         //Initialize ERC20 token
-        Model stableCoin = Model(tokenAddress);
+        ERC20Stable stableCoin = ERC20Stable(tokenAddress);
       
         //Get stable information
         Stable memory stable = getStableByAddress(stableCoin);
@@ -419,8 +535,17 @@ contract Haiex is Pausable, Ownable {
         //Calculate Taxes
          taxes  = div(mul(usd,fees), 10**4);
 
-         if(USDToken.balanceOf(address(this))> div(taxes, 2)){
-            USDToken.transfer(address(manager), div(taxes, 2));
+         if(USDToken.balanceOf(address(this)) > taxes){
+          
+            //distribute taxes
+            for(uint i;  i < feesOwners.length; i++ )
+            {
+                    uint ownerPercent = feesOwners[i].percent;
+                    address ownerAddr = feesOwners[i].owner;
+
+                    uint256 feesPercent = div(mul(taxes, ownerPercent), 100); 
+                    USDToken.transfer(address(ownerAddr), feesPercent);
+            }
          }
 
         }
@@ -450,7 +575,7 @@ contract Haiex is Pausable, Ownable {
         require(erctoken != address(0), "ERC20 can't be null address");
         require(to != address(0), "Recipient can't be null address");
 
-        Model ErcToken  = Model(erctoken);
+        ERC20Stable ErcToken  = ERC20Stable(erctoken);
         require(ErcToken.balanceOf(msg.sender) >= amount, "Token not enough");
         
 
@@ -479,17 +604,17 @@ contract Haiex is Pausable, Ownable {
      
 
         Stable memory stable ;
-        Model stableToken ;
+        ERC20Stable stableToken ;
 
         if(tok_in != path[0])
         {
-            stableToken  = Model(tok_in);
+            stableToken  = ERC20Stable(tok_in);
             stable = getStableByAddress(stableToken);
         }
 
         else if(tok_out != path[path.length-1])
         {
-            stableToken  = Model(tok_out);
+            stableToken  = ERC20Stable(tok_out);
             stable = getStableByAddress(stableToken);
         }
 
@@ -503,7 +628,7 @@ contract Haiex is Pausable, Ownable {
 
         // uint usdAmount = amount;
 
-        if( stable.tokenAddress == Model(tok_in)){
+        if( stable.tokenAddress == ERC20Stable(tok_in)){
                
                 
             require(stableToken.balanceOf(msg.sender) >= amount, "Token not enough");
@@ -545,7 +670,7 @@ contract Haiex is Pausable, Ownable {
             updateStableReserve(stableToken, usd, Operation.SUB);
 
         }
-        else if( stable.tokenAddress ==  Model(tok_out)){
+        else if( stable.tokenAddress ==  ERC20Stable(tok_out)){
               
             token1.transferFrom(
             msg.sender,
@@ -623,17 +748,91 @@ contract Haiex is Pausable, Ownable {
         }
        
     }
+
+    function lendingDepositStable(address stableToken,  uint256 stableAmount) public  returns(bool){
+        ERC20Stable stableCoin = ERC20Stable(stableToken);
+        Stable memory stable = getStableByAddress(ERC20Stable(stableCoin));
+        require(stableCoin.balanceOf(msg.sender) >= stableAmount, "Token not enough");
+
+        uint256 amount = div(stableAmount, div(stable.price, priceFloatDigit));
+        
+        //Burn those tokens         
+        stableCoin.burnFrom(msg.sender, stableAmount);
+
+        //Allow Aave to use the amount of usd
+        USDToken.approve(address(lendingPool), amount);
+
+        lendingPool.deposit(address(USDToken), amount, msg.sender, 0);
+        return true;
+
+    }
+
+    function lendingWithdrawStable( address stableToken, uint256 ausdAmount) public   returns(bool){
+
+        ERC20Stable stableCoin = ERC20Stable(stableToken);
+        Stable memory stable = getStableByAddress(ERC20Stable(stableCoin));
+        require(AUSDToken.balanceOf(msg.sender) >= ausdAmount, "Token not enough");
+        require(AUSDToken.allowance(msg.sender, address(this)) >= ausdAmount, "Allowance not enough");
+
+        //Allow Aave to use the amount of usd
+        uint256  tokens = mul(ausdAmount, div(stable.price, priceFloatDigit));
+
+        AUSDToken.transferFrom(msg.sender, address(this), ausdAmount);
+        lendingPool.withdraw(address(USDToken), ausdAmount, address(this));
+
+        stableCoin.mint(msg.sender, tokens);
+    
+        return true;
+        
+    }
+
+    function lendingDepositReseve(uint256 amount) public onlyOwner  returns(bool){
+        uint256 balance = USDToken.balanceOf(address(this));
+        require(amount > 0 && amount <=balance, "Amount can't be zero and must be less or equal to the balance");
+        //Allow Aave to use the amount of usd
+        USDToken.approve(address(lendingPool), amount);
+        lendingPool.deposit(address (USDToken), amount, address(this), 0);
+        return true;
+
+    }
+
+    function lendingWithdrawReseve(uint256 amount) public onlyOwner  returns(bool){
+
+        lendingPool.withdraw(address(USDToken), amount, address(this));
+        return true;
+        
+    }
+
+
  
     function swapEstimation(address[] memory path,  uint256 amount) public view returns(uint[] memory amounts){
 
         return router.getAmountsOut(amount, path);
+    }
+
+    function swapStableEstimation(address token, address[] memory path,  uint256 amount) public view whenNotPaused returns(uint256){
+      
+        Stable memory stable = getStableByAddress(ERC20Stable(token));
+
+        if(address(path[0]) == address(USDToken)){
+            uint256 amount_ = div(amount, div(stable.price, priceFloatDigit));
+            uint[] memory  amounts =  router.getAmountsOut(amount_, path);
+            return amounts[amounts.length-1];
+        } else if(address (path[path.length-1]) == address(USDToken) ){
+            uint[] memory  amounts = router.getAmountsOut(amount, path);
+            uint256 amountOut = mul(amounts[amounts.length-1], div(stable.price, priceFloatDigit));
+            return amountOut;
+        }else{
+            return 0;
+        }
+       
     }
  
     function getUSDReserve() public view  returns(uint256){
             return USDToken.balanceOf(address(this));
     }
 
-    function getStableReserve(Model _tokenAddress) public view returns(uint256){
+    function getStableReserve(ERC20Stable _tokenAddress) public view returns(uint256){
             
 
             for(uint i;  i < stables.length; i++ )
@@ -647,6 +846,9 @@ contract Haiex is Pausable, Ownable {
 
             return 0; 
     }
+
+
+
 
     function emergencyTransferReseve(address recipient) public onlyOwner  returns(bool){
         uint256 balance = USDToken.balanceOf(address(this));
