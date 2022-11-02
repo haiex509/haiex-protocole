@@ -1,8 +1,8 @@
-require('@nomiclabs/hardhat-ethers');
-require('hardhat-deploy');
-require('dotenv').config();
-require('@nomiclabs/hardhat-web3');
-require('@nomiclabs/hardhat-etherscan');
+require("@nomiclabs/hardhat-ethers");
+require("hardhat-deploy");
+require("dotenv").config();
+require("@nomiclabs/hardhat-web3");
+require("@nomiclabs/hardhat-etherscan");
 // npx hardhat run --network localhost scripts/2_init_assets.js
 // npx hardhat node
 
@@ -42,14 +42,19 @@ module.exports = {
       accounts: [process.env.PRIVATEKEY],
       chainId: 42220,
     },
+    gnosis: {
+      url: process.env.GNOSISCHAINURL,
+      accounts: [process.env.PRIVATEKEY],
+      chainId: 100,
+    },
   },
   etherscan: {
     apiKey: {
-      polygon: 'FRESPWCDKGK7947Y3UH4GMIAJVK8QR4GP8',
+      polygon: "FRESPWCDKGK7947Y3UH4GMIAJVK8QR4GP8",
     },
   },
   solidity: {
-    version: '0.8.4',
+    version: "0.8.4",
     settings: {
       optimizer: {
         enabled: true,
@@ -58,10 +63,10 @@ module.exports = {
     },
   },
   paths: {
-    sources: './contracts',
-    tests: './test',
-    cache: './cache',
-    artifacts: './artifacts',
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
   },
   mocha: {
     timeout: 20000,

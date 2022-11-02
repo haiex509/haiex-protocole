@@ -1,8 +1,32 @@
 [
-  { "name": "HTG", "type": "token", "address": "0x3FE2C3aA296ffD65F27319A2dd5605684d6C1AC0" },
-  { "name": "DOP", "type": "token", "address": "0x1560ba67fd12C2A1755D8D8B936b3Ab5c11186d6" },
-  { "name": "CFA", "type": "token", "address": "0x5A9AE3E7Db59d6CecB8F9332a80e91025FdD1318" },
-  { "name": "CAD", "type": "token", "address": "0xc5c994E51b42eacb44FE276FF1184c9dd283c9a2" },
-  { "name": "USD", "type": "token", "address": "0x765DE816845861e75A25fCA122bb6898B8B1282a" },
-  { "name": "Haiex", "type": "dapp", "address": "0x7515600A2E332Bd827CA022d4E7d891Da4C0Ea51" }
+  {
+    "name": "HTG",
+    "type": "token",
+    "address": "0x3FE2C3aA296ffD65F27319A2dd5605684d6C1AC0"
+  },
+  {
+    "name": "DOP",
+    "type": "token",
+    "address": "0x1560ba67fd12C2A1755D8D8B936b3Ab5c11186d6"
+  },
+  {
+    "name": "CFA",
+    "type": "token",
+    "address": "0x5A9AE3E7Db59d6CecB8F9332a80e91025FdD1318"
+  },
+  {
+    "name": "CAD",
+    "type": "token",
+    "address": "0xc5c994E51b42eacb44FE276FF1184c9dd283c9a2"
+  },
+  {
+    "name": "USD",
+    "type": "token",
+    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83"
+  },
+  {
+    "name": "Haiex",
+    "type": "dapp",
+    "address": "0x7515600A2E332Bd827CA022d4E7d891Da4C0Ea51"
+  }
 ]

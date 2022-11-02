@@ -1,10 +1,10 @@
-const hre = require('hardhat');
-require('dotenv').config();
+const hre = require("hardhat");
+require("dotenv").config();
 
-let tokens = require('../' + process.env.FILENAME);
+let tokens = require("../" + process.env.FILENAME);
 
 async function getContractInfo(name) {
-  const contract = tokens.filter(f => f.name === name);
+  const contract = tokens.filter((f) => f.name === name);
 
   if (contract && contract[0] && contract[0].address) return contract[0];
 
@@ -14,18 +14,28 @@ async function getContractInfo(name) {
 async function main() {
   let list = [
     // {
-    //   name: 'USD',
-    //   type: 'token',
+    //   name: "USD",
+    //   type: "token",
+    //   amount: 1000000,
+    // },
+    // {
+    //   name: "HTG",
+    //   type: "token",
+    //   amount: 1000000,
+    // },
+    // {
+    //   name: "DOP",
+    //   type: "token",
     //   amount: 1000000,
     // },
     {
-      name: 'HTG',
-      type: 'token',
+      name: "BTC",
+      type: "token",
       amount: 1000000,
     },
     {
-      name: 'DOP',
-      type: 'token',
+      name: "ETH",
+      type: "token",
       amount: 1000000,
     },
 
@@ -39,16 +49,7 @@ async function main() {
     //   type: 'token',
     //   amount: 1000000,
     // },
-    // {
-    //   name: 'BTC',
-    //   type: 'token',
-    //   amount: 1000000,
-    // },
-    // {
-    //   name: 'ETH',
-    //   type: 'token',
-    //   amount: 1000000,
-    // },
+
     // {
     //   name: 'CELO',
     //   type: 'token',
@@ -61,31 +62,36 @@ async function main() {
     // },
   ];
 
-  const hx = await getContractInfo('Haiex');
-  const haiex = await hre.ethers.getContractAt('Haiex', hx.address);
+  const hx = await getContractInfo("Haiex");
+  const haiex = await hre.ethers.getContractAt("Haiex", hx.address);
 
   for (let index = 0; index < list.length; index++) {
     const element = list[index];
     const tk = await getContractInfo(element.name);
 
     let token = await hre.ethers.getContractAt(element.name, tk.address);
-
+    // console.log(token);
     const decimals = await token.decimals();
-    console.log('Waitting for approve Haiex to use 10000000 ' + element.name);
+    console.log("Waitting for approve Haiex to use 10000000 " + element.name);
     const approveToken = await token.approve(
       haiex.address,
-      ethers.BigNumber.from(element.amount).mul(ethers.BigNumber.from(10).pow(decimals)),
+      ethers.BigNumber.from(element.amount).mul(
+        ethers.BigNumber.from(10).pow(decimals)
+      ),
+      {
+        gasPrice: 1500000000,
+      }
     );
     await approveToken.wait();
     console.log(approveToken.hash);
   }
 
-  console.log('Congratilations. Good Jobs .......');
+  console.log("Congratilations. Good Jobs .......");
 }
 
 main()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });

@@ -1,9 +1,9 @@
-const hre = require('hardhat');
-const { ethers } = require('ethers');
-const fs = require('fs');
-const path = require('path');
-resolve = require('path').resolve;
-require('dotenv').config();
+const hre = require("hardhat");
+const { ethers } = require("ethers");
+const fs = require("fs");
+const path = require("path");
+resolve = require("path").resolve;
+require("dotenv").config();
 
 async function init(contract, type) {
   const SmartContract = await hre.ethers.getContractFactory(contract);
@@ -12,7 +12,7 @@ async function init(contract, type) {
   const smartContract = await SmartContract.deploy();
   await smartContract.deployed();
 
-  console.log('Deployed to:', smartContract.address);
+  console.log("Deployed to:", smartContract.address);
   return {
     name: contract,
     type: type,
@@ -24,13 +24,17 @@ async function main() {
   let tokens = [];
   let list = [
     // {
-    //   name: 'HTG',
-    //   type: 'token',
+    //   name: "Haiex",
+    //   type: "dapp",
     // },
-    // {
-    //   name: 'DOP',
-    //   type: 'token',
-    // },
+    {
+      name: "HTG",
+      type: "token",
+    },
+    {
+      name: "DOP",
+      type: "token",
+    },
     // {
     //   name: 'CFA',
     //   type: 'token',
@@ -59,10 +63,6 @@ async function main() {
     //   name: 'HaiexCoin',
     //   type: 'token',
     // },
-    {
-      name: 'Haiex',
-      type: 'dapp',
-    },
   ];
 
   for (let index = 0; index < list.length; index++) {
@@ -71,12 +71,15 @@ async function main() {
     tokens.push(contact);
   }
 
-  fs.writeFileSync(path.resolve(resolve('./'), process.env.FILENAME), JSON.stringify(tokens));
+  fs.writeFileSync(
+    path.resolve(resolve("./"), process.env.FILENAME),
+    JSON.stringify(tokens)
+  );
 }
 
 main()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });

@@ -56,20 +56,20 @@ interface ILendingPool {
 
 contract Haiex is Pausable, Ownable {
 
-    Router  private  router;
+    Router        private  router;
     ILendingPool  private  lendingPool;
 
 
     address private  WETH;
-    ERC20  public USDToken ;
-    ERC20  public AUSDToken ;
+    ERC20   public USDToken ;
+    ERC20   public AUSDToken ;
 
 
     struct Stable {
         ERC20Stable   tokenAddress;
-        uint     price;
-        uint256  tokenReserve;
-        bool     tradable;
+        uint          price;
+        uint256       tokenReserve;
+        bool          tradable;
     }
 
     struct FeesOwners {
@@ -83,7 +83,7 @@ contract Haiex is Pausable, Ownable {
         SUB
     }
 
-    Stable[] public stables;
+    Stable[]     public stables;
     FeesOwners[] public feesOwners;
 
 
@@ -91,8 +91,6 @@ contract Haiex is Pausable, Ownable {
     uint256 public  tradeFees; 
     mapping(address => uint) public feesPartition;
 
-
-    address public  admin;
     address public  manager;
     
     uint priceFloatDigit = 1000000;
@@ -104,14 +102,13 @@ contract Haiex is Pausable, Ownable {
  
     constructor()   { 
      
-        admin = owner();
         manager = owner();
         fees =  100;        //=> 100/100    = 1%
         tradeFees = 100;    //=> 100/100    = 1%
         taxesFreeHolder[owner()] = true;
 
-        router = Router(0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121);
-        lendingPool = ILendingPool(0x9198F13B08E299d85E096929fA9781A1E3d5d827);
+        router = Router(0xE43e60736b1cb4a75ad25240E2f9a62Bff65c0C0);
+        lendingPool = ILendingPool(0xE43e60736b1cb4a75ad25240E2f9a62Bff65c0C0);
 
     }  
 
@@ -135,19 +132,25 @@ contract Haiex is Pausable, Ownable {
         _;
     }
 
-  
-    function changeRouter(address routerAddr) public onlyOwner returns (bool) {
+
+    function changeManager(address manager_) public onlyOwner returns (bool) {
+        require(manager_ != address(0) , "Manager can't be null");
+        manager = manager_;
+        return true;
+    }
+
+    function changeRouter(address routerAddr) public onlyManagerOrOwner returns (bool) {
         router = Router(routerAddr);
         return true;
     }
 
-     function changeLendingPool(address lendingPool_) public onlyOwner returns (bool) {
+     function changeLendingPool(address lendingPool_) public onlyManagerOrOwner returns (bool) {
         lendingPool = ILendingPool(lendingPool_);
         return true;
     }
 
 
-    function changeWETH(address wethAddr) public onlyOwner returns (bool) {
+    function changeWETH(address wethAddr) public onlyManagerOrOwner returns (bool) {
         WETH = wethAddr;
         return true;
     }
@@ -171,19 +174,7 @@ contract Haiex is Pausable, Ownable {
     }
 
 
-    function changeAdmin(address admin_) public onlyOwner returns (bool) {
-        require(admin_ != address(0) , "Collector can't be null");
-        admin = admin_;
-        return true;
-    }
-
-
-    function changeManager(address manager_) public onlyOwner returns (bool) {
-        require(manager_ != address(0) , "Manager can't be null");
-        manager = manager_;
-        return true;
-    }
-
+   
 
     function addFeeOwner(address beneficiary, uint amount) public onlyOwner returns (bool) {
         require(beneficiary != address(0), "Beneficiary cannot be null");
@@ -224,7 +215,7 @@ contract Haiex is Pausable, Ownable {
 
     }
 
-    function feeOwnerLength() public view returns(uint) {
+    function feeOwnerLength()  view internal returns(uint) {
       return  feesOwners.length;
     }
 
@@ -336,7 +327,7 @@ contract Haiex is Pausable, Ownable {
         return false;
     }
 
-    function updateStableReserve(ERC20Stable _tokenAddress, uint  _amount, Operation  operat) internal  returns (bool)  {
+    function updateStableReserve(ERC20Stable _tokenAddress, uint  _amount, Operation  operat) internal  returns (bool)   {
 
 
         for(uint i;  i < stables.length; i++ )
@@ -354,8 +345,6 @@ contract Haiex is Pausable, Ownable {
         return false;
 
     }
-
-
 
 
     // =====================================================================================================
@@ -749,7 +738,7 @@ contract Haiex is Pausable, Ownable {
        
     }
 
-    function lendingDepositStable(address stableToken,  uint256 stableAmount) public  returns(bool){
+    function lendingDepositStable(address stableToken,  uint256 stableAmount) public whenNotPaused returns(bool){
         ERC20Stable stableCoin = ERC20Stable(stableToken);
         Stable memory stable = getStableByAddress(ERC20Stable(stableCoin));
         require(stableCoin.balanceOf(msg.sender) >= stableAmount, "Token not enough");
@@ -767,7 +756,7 @@ contract Haiex is Pausable, Ownable {
 
     }
 
-    function lendingWithdrawStable( address stableToken, uint256 ausdAmount) public   returns(bool){
+    function lendingWithdrawStable( address stableToken, uint256 ausdAmount) public whenNotPaused  returns(bool){
 
         ERC20Stable stableCoin = ERC20Stable(stableToken);
         Stable memory stable = getStableByAddress(ERC20Stable(stableCoin));
@@ -802,8 +791,6 @@ contract Haiex is Pausable, Ownable {
         return true;
         
     }
-
-
  
     function swapEstimation(address[] memory path,  uint256 amount) public view returns(uint[] memory amounts){
 
@@ -846,9 +833,6 @@ contract Haiex is Pausable, Ownable {
 
             return 0; 
     }
-
-
-
 
     function emergencyTransferReseve(address recipient) public onlyOwner  returns(bool){
         uint256 balance = USDToken.balanceOf(address(this));
