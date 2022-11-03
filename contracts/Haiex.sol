@@ -668,7 +668,7 @@ contract Haiex is Pausable, Ownable {
             token1.approve(address(router), amount);
 
             //Swap the token to USD 
-             uint[] memory  amounts = router.swapExactTokensForTokens(
+            uint[] memory  amounts = router.swapExactTokensForTokens(
             amount,
             0,
             path,
