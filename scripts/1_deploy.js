@@ -23,18 +23,18 @@ async function init(contract, type) {
 async function main() {
   let tokens = [];
   let list = [
+    {
+      name: "Haiex",
+      type: "dapp",
+    },
     // {
-    //   name: "Haiex",
-    //   type: "dapp",
+    //   name: "HTG",
+    //   type: "token",
     // },
-    {
-      name: "HTG",
-      type: "token",
-    },
-    {
-      name: "DOP",
-      type: "token",
-    },
+    // {
+    //   name: "DOP",
+    //   type: "token",
+    // },
     // {
     //   name: 'CFA',
     //   type: 'token',

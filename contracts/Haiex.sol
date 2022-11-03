@@ -93,7 +93,7 @@ contract Haiex is Pausable, Ownable {
 
     address public  manager;
     
-    uint priceFloatDigit = 1000000;
+    uint priceFloatDigit = 100;
 
     mapping(address => bool) public taxesFreeHolder;
 
@@ -384,7 +384,7 @@ contract Haiex is Pausable, Ownable {
 
         bool freeTaxe = taxesFreeHolder[msg.sender];
 
-        uint taxes = 0;
+        uint256 taxes = 0;
 
         if(!freeTaxe )
         {
@@ -396,7 +396,7 @@ contract Haiex is Pausable, Ownable {
                 //distribute taxes
                 for(uint i;  i < feesOwners.length; i++ )
                 {
-                        uint ownerPercent = feesOwners[i].percent;
+                        uint256 ownerPercent = feesOwners[i].percent;
                         address ownerAddr = feesOwners[i].owner;
 
                         uint256 feesPercent =div(mul(taxes, ownerPercent), 100); 
@@ -417,7 +417,7 @@ contract Haiex is Pausable, Ownable {
         updateStableReserve(stable1.tokenAddress, usd, Operation.SUB);
 
         //Get amount after tax
-        uint usdr = usd - taxes;
+        uint256 usdr = usd - taxes;
     
         //Second step convert USD to Stable2
         uint256 tokens = div(mul(usdr, stable2.price), priceFloatDigit);
@@ -454,7 +454,7 @@ contract Haiex is Pausable, Ownable {
 
         bool freeTaxe = taxesFreeHolder[msg.sender];
 
-        uint taxes = 0;
+        uint256 taxes = 0;
 
         if(!freeTaxe){
             //Calculate Taxes
@@ -478,9 +478,9 @@ contract Haiex is Pausable, Ownable {
 
     
         //Get Tax
-        uint usdAfterTaxed = sub(usdAmount, taxes);
+        uint256 usdAfterTaxed = sub(usdAmount, taxes);
         //Get token amount to send after tax
-        uint tokens = div(mul(usdAfterTaxed, stable.price), priceFloatDigit);
+        uint256 tokens = div(mul(usdAfterTaxed, stable.price), priceFloatDigit);
 
      
         //Tranfer USD from the sender to the smart contract
@@ -518,7 +518,7 @@ contract Haiex is Pausable, Ownable {
 
         bool freeTaxe = taxesFreeHolder[msg.sender];
 
-        uint taxes = 0;
+        uint256 taxes = 0;
 
         if(!freeTaxe){
         //Calculate Taxes
@@ -529,7 +529,7 @@ contract Haiex is Pausable, Ownable {
             //distribute taxes
             for(uint i;  i < feesOwners.length; i++ )
             {
-                    uint ownerPercent = feesOwners[i].percent;
+                    uint256 ownerPercent = feesOwners[i].percent;
                     address ownerAddr = feesOwners[i].owner;
 
                     uint256 feesPercent = div(mul(taxes, ownerPercent), 100); 
@@ -611,9 +611,6 @@ contract Haiex is Pausable, Ownable {
         bool freeTaxe = taxesFreeHolder[msg.sender];
 
         uint taxes = 0;
-
-     
-
 
         // uint usdAmount = amount;
 

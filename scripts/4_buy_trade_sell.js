@@ -67,38 +67,47 @@ async function main() {
   };
   await getBalance();
 
-  const amount = 1;
-  console.log(`Buying $${amount} of tgoud`);
-  const amountUsd = ethers.BigNumber.from(amount).mul(
-    ethers.BigNumber.from(10).pow(await usd.decimals())
-  );
-  console.log(amountUsd);
-  const buyTgoud = await haiex.buyStable(tgoud.address, amountUsd);
-  await buyTgoud.wait();
-  console.log(buyTgoud.hash);
+  // const amount = 1 * 1000;
+  // console.log(`Buying $${amount} of tgoud`);
+  // const amountUsd = ethers.BigNumber.from(amount).mul(
+  //   ethers.BigNumber.from(10).pow((await usd.decimals()) - 3)
+  // );
+  // console.log(amountUsd);
 
-  await getBalance();
+  // const buyTgoud = await haiex.buyStable(tgoud.address, amountUsd, {
+  //   gasPrice: 1500000000,
+  // });
+  // await buyTgoud.wait();
+  // console.log(buyTgoud.hash);
 
-  console.log("trade tgoud - tdop");
-  const amount1 = ethers.BigNumber.from(balanceTgoud);
-  const trade = await haiex.stableTrade(tgoud.address, tdop.address, amount1);
-  await trade.wait();
-  console.log(trade.hash);
-  await getBalance();
+  // await getBalance();
 
-  console.log("trade tdop - tgoud");
-  const amount2 = ethers.BigNumber.from(balanceTdop);
-  const trade2 = await haiex.stableTrade(tdop.address, tgoud.address, amount2);
-  await trade2.wait();
-  console.log(trade2.hash);
-  await getBalance();
+  // console.log("trade tgoud - tdop");
+  // const amount1 = ethers.BigNumber.from(balanceTgoud);
+  // const trade = await haiex.stableTrade(tgoud.address, tdop.address, amount1, {
+  //   gasPrice: 1500000000,
+  // });
+  // await trade.wait();
+  // console.log(trade.hash);
+  // await getBalance();
 
-  console.log("Selling htg");
-  const amount3 = ethers.BigNumber.from(balanceTgoud);
-  const sell = await haiex.sellStable(tgoud.address, amount3);
-  await sell.wait();
-  console.log(sell.hash);
-  await getBalance();
+  // console.log("trade tdop - tgoud");
+  // const amount2 = ethers.BigNumber.from(balanceTdop);
+  // const trade2 = await haiex.stableTrade(tdop.address, tgoud.address, amount2, {
+  //   gasPrice: 1500000000,
+  // });
+  // await trade2.wait();
+  // console.log(trade2.hash);
+  // await getBalance();
+
+  // console.log("Selling htg");
+  // const amount3 = ethers.BigNumber.from(balanceTgoud);
+  // const sell = await haiex.sellStable(tgoud.address, amount3, {
+  //   gasPrice: 1500000000,
+  // });
+  // await sell.wait();
+  // console.log(sell.hash);
+  // await getBalance();
 
   console.log("Congratilations. Good Jobs .......");
 }

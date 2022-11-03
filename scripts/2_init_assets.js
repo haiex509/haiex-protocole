@@ -1,10 +1,10 @@
-const hre = require('hardhat');
-require('dotenv').config();
+const hre = require("hardhat");
+require("dotenv").config();
 
-let tokens = require('../' + process.env.FILENAME);
+let tokens = require("../" + process.env.FILENAME);
 
 async function getContractInfo(name) {
-  const contract = tokens.filter(f => f.name === name);
+  const contract = tokens.filter((f) => f.name === name);
 
   if (contract && contract[0] && contract[0].address) return contract[0];
 
@@ -14,14 +14,14 @@ async function getContractInfo(name) {
 async function main() {
   let list = [
     {
-      name: 'HTG',
-      type: 'token',
-      price: 117570857,
+      name: "HTG",
+      type: "token",
+      price: 11757,
     },
     {
-      name: 'DOP',
-      type: 'token',
-      price: 53318548,
+      name: "DOP",
+      type: "token",
+      price: 5331,
     },
     // {
     //   name: 'CFA',
@@ -35,14 +35,16 @@ async function main() {
     // },
   ];
 
-  const hx = await getContractInfo('Haiex');
-  const haiex = await hre.ethers.getContractAt('Haiex', hx.address);
+  const hx = await getContractInfo("Haiex");
+  const haiex = await hre.ethers.getContractAt("Haiex", hx.address);
 
-  const us = await getContractInfo('USD');
-  let usdc = await hre.ethers.getContractAt('USD', us.address);
+  const us = await getContractInfo("USD");
+  let usdc = await hre.ethers.getContractAt("USD", us.address);
 
-  console.log('Waitting for add usdc');
-  const addedUSD = await haiex.changeUSD(usdc.address);
+  console.log("Waitting for add usdc");
+  const addedUSD = await haiex.changeUSD(usdc.address, {
+    gasPrice: 1500000000,
+  });
   await addedUSD.wait();
   console.log(addedUSD.hash);
 
@@ -57,23 +59,33 @@ async function main() {
     // await remove.wait();
     // console.log(remove.hash);
 
-    console.log('adding ' + element.name);
-    const add = await haiex.addStable(token.address, ethers.BigNumber.from(element.price), 0, true);
+    console.log("adding " + element.name);
+    const add = await haiex.addStable(
+      token.address,
+      ethers.BigNumber.from(element.price),
+      0,
+      true,
+      {
+        gasPrice: 1500000000,
+      }
+    );
     await add.wait();
     console.log(add.hash);
 
-    console.log('transfering Ownership' + element.name);
-    const transferOwner = await token.changeManager(haiex.address);
+    console.log("transfering Ownership" + element.name);
+    const transferOwner = await token.changeManager(haiex.address, {
+      gasPrice: 1500000000,
+    });
     await transferOwner.wait();
     console.log(transferOwner.hash);
   }
 
-  console.log('Congratilations. Good Jobs .......');
+  console.log("Congratilations. Good Jobs .......");
 }
 
 main()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });

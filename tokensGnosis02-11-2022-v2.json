@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Haiex",
+    "type": "dapp",
+    "address": "0xb2CD04Caf640f72b47FE7Fc3A68fC8D0E0B2f55b"
+  },
+  {
+    "name": "HTG",
+    "type": "token",
+    "address": "0x758887C1C014F9e83F9FCE800012d00AbCA6Ec1A"
+  },
+  {
+    "name": "DOP",
+    "type": "token",
+    "address": "0x5c0Bbe58d95f9D3F79b2EC596508c1b342A04Db9"
+  },
+  {
+    "name": "USD",
+    "type": "token",
+    "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83"
+  },
+  {
+    "name": "BTC",
+    "type": "token",
+    "address": "0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252"
+  },
+  {
+    "name": "ETH",
+    "type": "token",
+    "address": "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1"
+  }
+]
